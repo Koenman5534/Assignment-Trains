@@ -9,13 +9,13 @@ import java.util.ArrayList;
 
 public class TrainsTest {
 
-//    private ArrayList<PassengerWagon> pwList;
+    private ArrayList<PassengerWagon> pwList;
     private Train firstPassengerTrain;
     private Train secondPassengerTrain;
     private Train firstFreightTrain;
     private Train secondFreightTrain;
 
-   /* @BeforeEach
+    @BeforeEach
     private void makeListOfPassengerWagons() {
         pwList = new ArrayList<>();
         pwList.add(new PassengerWagon(3, 100));
@@ -24,9 +24,9 @@ public class TrainsTest {
         pwList.add(new PassengerWagon(32, 150));
         pwList.add(new PassengerWagon(38, 140));
         pwList.add(new PassengerWagon(11, 100));
-    }*/
+    }
 
-    /*private void makeTrains() {
+    private void makeTrains() {
         Locomotive thomas = new Locomotive(2453, 7);
         Locomotive gordon = new Locomotive(5277, 8);
         Locomotive emily = new Locomotive(4383, 11);
@@ -37,14 +37,14 @@ public class TrainsTest {
             Shunter.hookWagonOnTrainRear(firstPassengerTrain, w);
         }
         secondPassengerTrain = new Train(gordon, "Joburg", "Cape Town");
-    }*/
+    }
 
-    /*@Test
+    @Test
     public void checkNumberOfWagonsOnTrain() {
         makeTrains();
         assertEquals(6, firstPassengerTrain.getNumberOfWagons(), "Train should have 6 wagons");
         System.out.println(firstPassengerTrain);
-    }*/
+    }
 
     /*@Test
     public void checkNumberOfSeatsOnTrain() {
