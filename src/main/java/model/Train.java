@@ -27,13 +27,17 @@ public class Train {
          this method does the calculation */
        int number = 0;
        if (firstWagon == null) {
+           if (firstWagon.getPreviousWagon() == null){
+               this.numberOfWagons = 1;
+               return;
+           }
            numberOfWagons = 0;
        }
 
-       Wagon subject = firstWagon;
-       while (subject != null) {
+       Wagon wagon = firstWagon;
+       while (wagon != null) {
            number++;
-           subject = subject.getPreviousWagon();
+           wagon = wagon.getPreviousWagon();
        }
 
        this.numberOfWagons = number;
@@ -42,7 +46,6 @@ public class Train {
     public int getNumberOfWagons() {
         return numberOfWagons;
     }
-
 
     /* three helper methods that are usefull in other methods */
 
@@ -72,6 +75,10 @@ public class Train {
 
             pos++;
             subject = subject.getPreviousWagon();
+
+            if (subject == null){
+                return  -1;
+            }
         }
 
         return pos;

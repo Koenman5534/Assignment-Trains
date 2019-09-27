@@ -20,7 +20,6 @@ public class TrainLauncher {
             Shunter.hookWagonOnTrainRear(firstTrain, w);
         }
 
-
         System.out.println(firstTrain);
         Shunter.hookWagonOnTrainFront(firstTrain, new PassengerWagon(21, 140));
         System.out.println(firstTrain);

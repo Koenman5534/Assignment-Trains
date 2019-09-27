@@ -1,5 +1,8 @@
 package model;
 
+import java.util.Collections;
+import java.util.List;
+
 public class Shunter {
     //         0    1       2         1    2      3        2    3      0
     //Train - next.wagon.previous - next.wagon.previous - next.wagon.previous
@@ -7,15 +10,13 @@ public class Shunter {
     /* four helper methods than are used in other methods in this class to do checks */
     private static boolean isSuitableWagon(Train train, Wagon wagon) {
         // trains can only exist of passenger wagons or of freight wagons
-        Class firstWagonClass = train.getFirstWagon().getClass();
-        Class wagonClass = wagon.getClass();
+        Wagon firstWagon = train.getFirstWagon();
 
-        if(firstWagonClass.equals(PassengerWagon.class)){
-            return wagonClass.equals(PassengerWagon.class);
-        } else if (firstWagonClass.equals(FreightWagon.class)){
-            return wagonClass.equals(FreightWagon.class);
+        if (firstWagon == null){
+            return true;
+        } else {
+            return isSuitableWagon(firstWagon, wagon);
         }
-        return true;
     }
 
     private static boolean isSuitableWagon(Wagon one, Wagon two) {
@@ -38,18 +39,32 @@ public class Shunter {
 
     private static boolean hasPlaceForWagons(Train train, Wagon wagon) {
         // the engine of a train has a maximum capacity, this method checks for a row of wagons
+
+        if (train != null && wagon != null){
+            int totalAmountWagons = train.getNumberOfWagons();
+            int totalAmountOfWagonsHooked = wagon.getNumberOfWagonsAttached();
+            int maxAllowedAmountOfWagons = train.getEngine().getMaxWagons();
+
+            if ((totalAmountWagons + totalAmountOfWagonsHooked) >= maxAllowedAmountOfWagons){
+                return false;
+            }
+        }
         return true;
     }
 
     private static boolean hasPlaceForOneWagon(Train train, Wagon wagon) {
-        int totalAmountWagons = train.getNumberOfWagons() + 1;
+        int totalAmountWagons = train.getNumberOfWagons() ;
         int maxAllowedAmountOfWagons = train.getEngine().getMaxWagons();
 
-        // the engine of a train has a maximum capacity, this method checks for a row of wagons
-        if(totalAmountWagons >= maxAllowedAmountOfWagons){
-            return false;
+        if (wagon.getNumberOfWagonsAttached() == 0) {
+            // the engine of a train has a maximum capacity, this method checks for a row of wagons
+            if (totalAmountWagons >= maxAllowedAmountOfWagons) {
+                return false;
+            }
+            return true;
         }
-        return true;
+
+        return hasPlaceForWagons(train,wagon);
     }
 
     public static boolean hookWagonOnTrainRear(Train train, Wagon wagon) {
@@ -59,27 +74,18 @@ public class Shunter {
          hook the wagon on the last wagon (see Wagon class)
          adjust number of Wagons of Train */
 
-         // Wagons can be attached if the wagon type is suitable and if this action does not
-        // exceed the capacity of the train
-        if (
-                train.getNumberOfWagons() < train.getEngine().getMaxWagons() &&
-                isSuitableWagon(train.getFirstWagon(), wagon)
-        )
-        {
-            // set this new wagon as the previous wagon of the last wagon of the train
-            // if there is no last wagon of the train, it means that this wagon is the first
-            // one, so just set it as the first wagon of the train, then reset the number of
-            // wagons
+        if (hasPlaceForOneWagon(train, wagon)){
+            //get the last wagon and check if it is compatible with the given wagon(To couple)
+            //Also check is the last one already has a 'previous' wagon, if so, something has gone wrong
             Wagon lastWagon = train.getWagonOnPosition(train.getNumberOfWagons());
-            if (lastWagon == null)
-            {
+
+            if (lastWagon == null){
                 train.setFirstWagon(wagon);
-            }
-            else
-            {
-                wagon.setNextWagon(lastWagon);
+            } else if(isSuitableWagon(lastWagon, wagon) && !lastWagon.hasPreviousWagon()){
                 lastWagon.setPreviousWagon(wagon);
+                wagon.setNextWagon(lastWagon);
             }
+
             train.resetNumberOfWagons();
             return true;
         }
@@ -92,19 +98,24 @@ public class Shunter {
          if Train has no wagons hookOn to Locomotive
          if Train has wagons hookOn to Locomotive and hook firstWagon of Train to lastWagon attached to the wagon
          adjust number of Wagons of Train */
-        if (train.getNumberOfWagons() < train.getEngine().getMaxWagons() &&
-            isSuitableWagon(train.getFirstWagon(), wagon)
-        )
+
+        if (train.getNumberOfWagons() < train.getEngine().getMaxWagons())
         {
             if (train.getFirstWagon() == null)
             {
                 train.setFirstWagon(wagon);
             }
-            else
+            else if (isSuitableWagon(train.getFirstWagon(), wagon))
             {
-                train.getFirstWagon().setNextWagon(wagon);
+                Wagon currentFirstWagon =  train.getFirstWagon();
+                currentFirstWagon.setNextWagon(wagon);
+
+                wagon.setPreviousWagon(currentFirstWagon);
                 train.setFirstWagon(wagon);
+            } else {
+                return false;
             }
+
             train.resetNumberOfWagons();
             return true;
         }
@@ -117,11 +128,11 @@ public class Shunter {
         * if so make second wagon next wagon of first */
         if (isSuitableWagon(first, second))
         {
-            first.setNextWagon(second);
+            first.setPreviousWagon(second);
+            second.setNextWagon(first);
             return true;
         }
         return false;
-
     }
 
 
@@ -129,21 +140,12 @@ public class Shunter {
         /* check if wagon is on the train
          detach the wagon from its previousWagon with all its successor
          recalculate the number of wagons of the train */
-        boolean onTrain = false;
-        Wagon subject = train.getFirstWagon();
-        while (subject != null)
-        {
-            if (subject.equals(wagon))
-            {
-                onTrain = true;
-                break;
-            }
-            // detach all wagons
-            subject.setNextWagon(null);
-            subject = subject.getPreviousWagon();
+        int wagonPosition = train.getPositionOfWagon(wagon.getWagonId());
+        if (wagonPosition != 0) {
+            wagon.getNextWagon().setPreviousWagon(null);
+            train.resetNumberOfWagons();
         }
-        return onTrain;
-
+        return true;
     }
 
     public static boolean detachOneWagon(Train train, Wagon wagon) {
@@ -152,28 +154,40 @@ public class Shunter {
          so, in fact remove the one wagon from the train
         */
         // check if the wagon is on the train
-        Wagon found = null;
-        Wagon subject = train.getFirstWagon();
-        while (subject != null)
-        {
-            if (subject.getWagonId() == wagon.getWagonId()) {
-                found = subject;
-                break;
+
+        int wagonPosition = train.getPositionOfWagon(wagon.getWagonId());
+        if (wagonPosition != 0) {
+
+            Wagon previousWagon = wagon.getPreviousWagon();
+            Wagon nextWagon = wagon.getNextWagon();
+
+            //Check if there is a previous wagon, if so, set the previous wagons's next to the wagon
+            // that is in front of the wagon that is to be detached
+            if (previousWagon != null) {
+                //Check if the current wagon has a Next wagon to couple
+                if (nextWagon != null) {
+                    previousWagon.setNextWagon(nextWagon);
+                } else {
+                    previousWagon.setNextWagon(null);
+                }
             }
-            subject = subject.getPreviousWagon();
+
+            if (nextWagon != null) {
+                //Check if the current wagon has a previous wagon to couple
+                if (previousWagon != null) {
+                    nextWagon.setPreviousWagon(previousWagon);
+                } else {
+                    nextWagon.setPreviousWagon(null);
+                }
+            }
+
+            train.resetNumberOfWagons();
+
+        } else {
+            return false;
         }
 
-        if (found == null)
-            return false;
-
-        // detach the wagon from its previousWagon
-        Wagon prev = wagon.getPreviousWagon();
-        wagon.setPreviousWagon(null);
-        // hook the nextWagon to the previousWagon
-        wagon.getNextWagon().setPreviousWagon(prev);
-        train.resetNumberOfWagons();
         return true;
-
     }
 
     public static boolean moveAllFromTrain(Train from, Train to, Wagon wagon) {
@@ -181,120 +195,44 @@ public class Shunter {
          check if wagon is correct for train and if engine can handle new wagons
          detach Wagon and all successors from train from and hook at the rear of train to
          remember to adjust number of wagons of trains */
+        if(from != null && to != null && wagon != null){
+            if (from.getPositionOfWagon(wagon.getWagonId()) > 0){
+                List<Integer> allWagonsAttached = Collections.singletonList(wagon.getNumberOfWagonsAttached());
 
-        // check if the wagon is on the from train
-        Wagon found = null;
-        Wagon subject = from.getFirstWagon();
-        while (subject != null)
-        {
-            if (subject.getWagonId() == wagon.getWagonId()) {
-                found = subject;
-                break;
-            }
-            subject = subject.getPreviousWagon();
-        }
-
-        // stop if from doesn't contain the wagon
-        if (found == null)
-            return false;
-
-        // Check if the to train is compatible with the wagon and if the to train has engine capacity
-        if (to.getFirstWagon() != null)
-        {
-            if (!isSuitableWagon(to, wagon) || to.getNumberOfWagons() + from.getEngine().getMaxWagons() < to.getEngine().getMaxWagons())
-            {
-                return false;
+                if (hasPlaceForWagons(to, wagon)){
+                    System.out.println("To has place for wagons");
+                    if (detachAllFromTrain(from, wagon)){
+                        System.out.println("Wagons are detached from from");
+                        if (hookWagonOnTrainRear(to,wagon)){
+                            System.out.println("wagons are hooked to TO");
+                            return true;
+                        }
+                    }
+                }
             }
         }
-        else
-        {
-            if (to.getEngine().getMaxWagons() <= 0)
-                return false;
-        }
 
-        // get the last wagon of the to train and attach the wagon
-        Wagon last = null;
-        if (to.getNumberOfWagons() == 0)
-        {
-            to.setFirstWagon(wagon);
-        }
-        else
-        {
-            subject = to.getFirstWagon();
-            while (subject != null)
-            {
-                last = subject;
-                subject = subject.getPreviousWagon();
-            }
-            last.setPreviousWagon(wagon);
-        }
-
-        // update numbers of wagons
-        from.resetNumberOfWagons();
-        to.resetNumberOfWagons();
-
-        return true;
+        return false;
     }
 
     public static boolean moveOneWagon(Train from, Train to, Wagon wagon) {
         // detach only one wagon from train from and hook on rear of train to
         // do necessary checks and adjustments to trains and wagon
 
-        // check if the wagon is on the from train
-        Wagon found = null;
-        Wagon subject = from.getFirstWagon();
-        while (subject != null)
-        {
-            if (subject.getWagonId() == wagon.getWagonId()) {
-                found = subject;
-                break;
-            }
-            subject = subject.getPreviousWagon();
-        }
-
-        // stop if from doesn't contain the wagon
-        if (found == null)
-            return false;
-
-        // stop if from doesn't contain the wagon
-        if (found == null)
-            return false;
-
-        // Check if the to train is compatible with the wagon and if the to train has engine capacity
-        if (to.getFirstWagon() != null)
-        {
-            if (!isSuitableWagon(to, wagon) || to.getNumberOfWagons() + 1 < to.getEngine().getMaxWagons())
-            {
-                return false;
+        if(from != null && to != null && wagon != null) {
+            if (from.getPositionOfWagon(wagon.getWagonId()) > 0) {
+                //first check if the 'To' train has enough room and the wagons are of the same type
+                if (hasPlaceForOneWagon(to, wagon) && isSuitableWagon(to, wagon)) {
+                    //Try to detach the currently attached wagon
+                    if (detachOneWagon(from, wagon)) {
+                        //Then hook the wagon to the 'To train'
+                        wagon.setPreviousWagon(null);
+                        wagon.setNextWagon(null);
+                        return hookWagonOnTrainRear(to, wagon);
+                    }
+                }
             }
         }
-        else
-        {
-            if (to.getEngine().getMaxWagons() <= 0)
-                return false;
-        }
-
-        detachOneWagon(from, wagon);
-        // get the last wagon of the to train and attach the wagon
-        Wagon last = null;
-        if (to.getNumberOfWagons() == 0)
-        {
-            to.setFirstWagon(wagon);
-        }
-        else
-        {
-            subject = to.getFirstWagon();
-            while (subject != null)
-            {
-                last = subject;
-                subject = subject.getPreviousWagon();
-            }
-            last.setPreviousWagon(wagon);
-        }
-
-        from.resetNumberOfWagons();
-        to.resetNumberOfWagons();
-
-        return true;
+        return false;
     }
 }

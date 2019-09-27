@@ -10,22 +10,18 @@ public class Wagon {
     }
 
     public Wagon getLastWagonAttached() {
-        if (this.nextWagon == null)
-        {
-            return this;
+
+          //  3 -> 2 -> 1
+        Wagon lastWagon = this;
+        while (lastWagon.getPreviousWagon() != null){
+            lastWagon = lastWagon.getPreviousWagon();
         }
 
-        Wagon subject = this.nextWagon;
-        while (subject != null)
-        {
-            subject = subject.getNextWagon();
-        }
-
-        return subject;
+        return lastWagon;
     }
 
     public void setNextWagon(Wagon nextWagon) {
-        this.nextWagon = nextWagon.previousWagon;
+        this.nextWagon = nextWagon;
 
     }
 
