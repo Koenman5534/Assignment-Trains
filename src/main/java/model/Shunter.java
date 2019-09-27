@@ -55,22 +55,31 @@ public class Shunter {
          hook the wagon on the last wagon (see Wagon class)
          adjust number of Wagons of Train */
 
-         if (hasPlaceForOneWagon(train, wagon)){
-             //get the last wagon and check if it is compatible with the given wagon(To couple)
-             //Also check is the last one already has a 'previous' wagon, if so, something has gone wrong
-             Wagon lastWagon = train.getWagonOnPosition(train.getNumberOfWagons());
-             if (lastWagon == null){
-                 train.setFirstWagon(wagon);
-                 train.resetNumberOfWagons();
-
-                 return  true;
-             } else if(isSuitableWagon(lastWagon, wagon) && !lastWagon.hasPreviousWagon()){
-                   System.out.println("Trying to couple to existing wagon");
-                   lastWagon.setPreviousWagon(wagon);
-                   train.resetNumberOfWagons();
+         // Wagons can be attached if the wagon type is suitable and if this action does not
+        // exceed the capacity of the train
+        if (
+                train.getNumberOfWagons() < train.getEngine().getMaxWagons() &&
+                isSuitableWagon(train.getFirstWagon(), wagon)
+        )
+        {
+            // set this new wagon as the previous wagon of the last wagon of the train
+            // if there is no last wagon of the train, it means that this wagon is the first
+            // one, so just set it as the first wagon of the train, then reset the number of
+            // wagons
+            Wagon lastWagon = train.getWagonOnPosition(train.getNumberOfWagons());
+            if (lastWagon == null)
+            {
+                train.setFirstWagon(wagon);
             }
-         }
-         return false;
+            else
+            {
+                wagon.setNextWagon(lastWagon);
+                lastWagon.setPreviousWagon(wagon);
+            }
+            train.resetNumberOfWagons();
+            return true;
+        }
+        return false;
     }
 
     public static boolean hookWagonOnTrainFront(Train train, Wagon wagon) {
@@ -79,14 +88,34 @@ public class Shunter {
          if Train has no wagons hookOn to Locomotive
          if Train has wagons hookOn to Locomotive and hook firstWagon of Train to lastWagon attached to the wagon
          adjust number of Wagons of Train */
+        if (train.getNumberOfWagons() < train.getEngine().getMaxWagons() &&
+            isSuitableWagon(train.getFirstWagon(), wagon)
+        )
+        {
+            if (train.getFirstWagon() == null)
+            {
+                train.setFirstWagon(wagon);
+            }
+            else
+            {
+                train.getFirstWagon().setNextWagon(wagon);
+                train.setFirstWagon(wagon);
+            }
+            train.resetNumberOfWagons();
+            return true;
+        }
 
         return false;
-
     }
 
     public static boolean hookWagonOnWagon(Wagon first, Wagon second) {
         /* check if wagons are of the same kind (suitable)
         * if so make second wagon next wagon of first */
+        if (isSuitableWagon(first, second))
+        {
+            first.setNextWagon(second);
+            return true;
+        }
         return false;
 
     }
@@ -96,6 +125,18 @@ public class Shunter {
         /* check if wagon is on the train
          detach the wagon from its previousWagon with all its successor
          recalculate the number of wagons of the train */
+        boolean onTrain = false;
+        Wagon subject = train.getFirstWagon();
+        while (subject != null)
+        {
+            if (subject.equals(wagon))
+            {
+                onTrain = true;
+                break;
+            }
+            subject = subject.getPreviousWagon();
+        }
+        // TODO actual detachment...
         return false;
 
     }
