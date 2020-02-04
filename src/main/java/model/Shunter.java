@@ -55,6 +55,17 @@ public class Shunter {
     private static boolean hasPlaceForOneWagon(Train train, Wagon wagon) {
         int totalAmountWagons = train.getNumberOfWagons() ;
         int maxAllowedAmountOfWagons = train.getEngine().getMaxWagons();
+        int totalAmountOfWagonsCoupledToWagon = 1;
+
+//        Wagon wagonToCheck = wagon;
+//        while (wagonToCheck.hasNextWagon()){
+//            totalAmountOfWagonsCoupledToWagon++;
+//            wagonToCheck = wagonToCheck.getNextWagon();
+//        }
+//
+//        if (totalAmountWagons >= maxAllowedAmountOfWagons || totalAmountOfWagonsCoupledToWagon >= maxAllowedAmountOfWagons){
+//            return  false;
+//        }
 
         if (wagon.getNumberOfWagonsAttached() == 0) {
             // the engine of a train has a maximum capacity, this method checks for a row of wagons
@@ -65,6 +76,7 @@ public class Shunter {
         }
 
         return hasPlaceForWagons(train,wagon);
+
     }
 
     public static boolean hookWagonOnTrainRear(Train train, Wagon wagon) {

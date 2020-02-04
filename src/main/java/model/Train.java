@@ -1,6 +1,8 @@
 package model;
 
-public class Train {
+import java.util.Iterator;
+
+public class Train implements Iterable<Wagon>{
     private Locomotive engine;
     private Wagon firstWagon;
     private String destination;
@@ -37,7 +39,7 @@ public class Train {
        Wagon wagon = firstWagon;
        while (wagon != null) {
            number++;
-           wagon = wagon.getPreviousWagon();
+           wagon = wagon.getNextWagon();
        }
 
        this.numberOfWagons = number;
@@ -48,18 +50,17 @@ public class Train {
     }
 
     /* three helper methods that are usefull in other methods */
-
     public boolean hasNoWagons() {
         return (firstWagon == null);
     }
 
-    /*public boolean isPassengerTrain() {
+    public boolean isPassengerTrain() {
         return firstWagon instanceof PassengerWagon;
-    }*/
+    }
 
-    /*public boolean isFreightTrain() {
+    public boolean isFreightTrain() {
         return firstWagon instanceof FreightWagon;
-    }*/
+    }
 
     public int getPositionOfWagon(int wagonId) {
         // find a wagon on a train by id, return the position (first wagon had position 1)
@@ -110,10 +111,15 @@ public class Train {
             return 0;
 
         int seats = 0;
-        PassengerWagon subject = (PassengerWagon) this.firstWagon;
-        while(subject != null) {
-            seats += subject.getNumberOfSeats();
-            subject = (PassengerWagon) subject.getPreviousWagon();
+//        PassengerWagon passengerWagon = (PassengerWagon) this.firstWagon;
+//        while(passengerWagon != null) {
+//            seats += passengerWagon.getNumberOfSeats();
+//            passengerWagon = (PassengerWagon) passengerWagon.getPreviousWagon();
+//        }
+
+        for (Iterator<Wagon> it = iterator(); it.hasNext(); ) {
+            Wagon wagon = it.next();
+                seats += ((PassengerWagon) wagon).getNumberOfSeats();
         }
 
         return seats;
@@ -124,10 +130,8 @@ public class Train {
             return 0;
 
         int weight = 0;
-        FreightWagon subject = (FreightWagon) this.firstWagon;
-        while(subject != null) {
-            weight += subject.getMaxWeight();
-            subject = (FreightWagon) subject.getPreviousWagon();
+        for (Wagon wagon : this) {
+                weight += ((FreightWagon) wagon).getMaxWeight();
         }
 
         return weight;
@@ -149,4 +153,10 @@ public class Train {
         result.append(String.format(" with %d wagons and %d seats from %s to %s", numberOfWagons, getNumberOfSeats(), origin, destination));
         return result.toString();
     }
+
+    @Override
+    public Iterator<Wagon> iterator() {
+        return new TrainWagonIterator(this.firstWagon);
+    }
 }
+

@@ -1,28 +1,34 @@
 package model;
 
+import com.sun.jdi.IncompatibleThreadStateException;
+
 public class Wagon {
     private int wagonId;
     private Wagon previousWagon;
     private Wagon nextWagon;
 
-    public Wagon (int wagonId) {
+    public Wagon(int wagonId) {
         this.wagonId = wagonId;
     }
 
     public Wagon getLastWagonAttached() {
 
           //  3 -> 2 -> 1
-        Wagon lastWagon = this;
-        while (lastWagon.getPreviousWagon() != null){
-            lastWagon = lastWagon.getPreviousWagon();
+//        Wagon lastWagon = this;
+//        while (lastWagon.getPreviousWagon() != null){
+//            lastWagon = lastWagon.getPreviousWagon();
+//        }
+
+        if (this.nextWagon != null){
+            return  this.nextWagon;
         }
 
-        return lastWagon;
+
+        return this.previousWagon;
     }
 
     public void setNextWagon(Wagon nextWagon) {
         this.nextWagon = nextWagon;
-
     }
 
     public Wagon getPreviousWagon() {

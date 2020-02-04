@@ -16,29 +16,29 @@ class TeacherTrainTest {
         assertTrue(train.toString().indexOf(" from Haarlem to Amsterdam") > 0);
     }
 
-//    @Test
-//    public void reportPassengerTrainCorrectly() {
-//        Train train = new Train(new Locomotive(0, 0), "Haarlem", "Amsterdam");
-//        assertEquals(train.isPassengerTrain(), train.isFreightTrain(),
-//                "An empty train should be a passenger train as much as a freight train");
-//        Wagon wagon = new PassengerWagon(0, 0);
-//        train.setFirstWagon(wagon);
-//
-//        assertTrue(train.isPassengerTrain());
-//        assertFalse(train.isFreightTrain());
-//    }
+    @Test
+    public void reportPassengerTrainCorrectly() {
+        Train train = new Train(new Locomotive(0, 0), "Haarlem", "Amsterdam");
+        assertEquals(train.isPassengerTrain(), train.isFreightTrain(),
+                "An empty train should be a passenger train as much as a freight train");
+        Wagon wagon = new PassengerWagon(0, 0);
+        train.setFirstWagon(wagon);
 
-//    @Test
-//    public void reportFreightTrainCorrectly() {
-//        Train train = new Train(new Locomotive(0, 0), "Haarlem", "Amsterdam");
-//        assertEquals(train.isPassengerTrain(), train.isFreightTrain(),
-//                "An empty train should be a passenger train as much as a freight train");
-//        Wagon wagon = new FreightWagon(0, 0);
-//        train.setFirstWagon(wagon);
-//
-//        assertTrue(train.isFreightTrain());
-//        assertFalse(train.isPassengerTrain());
-//    }
+        assertTrue(train.isPassengerTrain());
+        assertFalse(train.isFreightTrain());
+    }
+
+    @Test
+    public void reportFreightTrainCorrectly() {
+        Train train = new Train(new Locomotive(0, 0), "Haarlem", "Amsterdam");
+        assertEquals(train.isPassengerTrain(), train.isFreightTrain(),
+                "An empty train should be a passenger train as much as a freight train");
+        Wagon wagon = new FreightWagon(0, 0);
+        train.setFirstWagon(wagon);
+
+        assertTrue(train.isFreightTrain());
+        assertFalse(train.isPassengerTrain());
+    }
 
 
     @Test

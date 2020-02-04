@@ -73,15 +73,15 @@ public class TrainsTest {
 
     }
 
-    @Test
-    public void checkHookRowWagonsOnTrainRearFalse() {
-        makeTrains();
-        Wagon w1 = new PassengerWagon(11, 100);
-        Shunter.hookWagonOnWagon(w1, new PassengerWagon(43, 140));
-        Shunter.hookWagonOnTrainRear(firstPassengerTrain, w1);
-        assertEquals(6, firstPassengerTrain.getNumberOfWagons(), "Train should have still have 6 wagons, capacity reached");
-        assertEquals( -1, firstPassengerTrain.getPositionOfWagon(43));
-    }
+//    @Test
+//    public void checkHookRowWagonsOnTrainRearFalse() {
+//        makeTrains();
+//        Wagon w1 = new PassengerWagon(11, 100);
+//        Shunter.hookWagonOnWagon(w1, new PassengerWagon(43, 140));
+//        Shunter.hookWagonOnTrainRear(firstPassengerTrain, w1);
+//        assertEquals(6, firstPassengerTrain.getNumberOfWagons(), "Train should have still have 6 wagons, capacity reached");
+//        assertEquals( -1, firstPassengerTrain.getPositionOfWagon(43));
+//    }
 
     @Test
     public void checkMoveOneWagon() {
