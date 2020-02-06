@@ -24,25 +24,19 @@ public class Train implements Iterable<Wagon>{
     }
 
     public void resetNumberOfWagons() {
-       /*  when wagons are hooked to or detached from a train,
-         the number of wagons of the train should be reset
-         this method does the calculation */
-       int number = 0;
-       if (firstWagon == null) {
-           if (firstWagon.getPreviousWagon() == null){
-               this.numberOfWagons = 1;
-               return;
+       /*  To reset the number of wagons attached to a train
+       * a check on the firstWagon and a while loop is used, to traverse attached wagons
+       * With each found wagon, the numberOfWagons increases */
+
+       numberOfWagons = 0;
+       //If there is no first wagon, the numberOfWagons will be kept at 0;
+       if (firstWagon != null) {
+           Wagon wagon = firstWagon;
+           while (wagon != null) {
+               numberOfWagons++;
+               wagon = wagon.getNextWagon();
            }
-           numberOfWagons = 0;
        }
-
-       Wagon wagon = firstWagon;
-       while (wagon != null) {
-           number++;
-           wagon = wagon.getNextWagon();
-       }
-
-       this.numberOfWagons = number;
     }
 
     public int getNumberOfWagons() {
@@ -65,32 +59,30 @@ public class Train implements Iterable<Wagon>{
     public int getPositionOfWagon(int wagonId) {
         // find a wagon on a train by id, return the position (first wagon had position 1)
         // if not found, than return -1
-        if (this.firstWagon == null)
-            return -1;
+        if (firstWagon == null) return -1;
 
-        int pos = 1;
-        Wagon subject = this.firstWagon;
-        while (subject != null) {
-            if (subject.getWagonId() == wagonId)
-                break;
+        int position = 1;
+        Wagon wagon = this.firstWagon;
 
-            pos++;
-            subject = subject.getPreviousWagon();
+        while (wagon != null) {
+            if (wagon.getWagonId() == wagonId) return position;
 
-            if (subject == null){
-                return  -1;
+            wagon = wagon.getNextWagon();
+            position++;
+
+            if (wagon == null){
+                return -1;
             }
         }
 
-        return pos;
+        return position;
     }
-
 
     public Wagon getWagonOnPosition(int position) throws IndexOutOfBoundsException {
         /* find the wagon on a given position on the train
          position of wagons start at 1 (firstWagon of train)
          use exceptions to handle a position that does not exist */
-        if (position > this.getNumberOfWagons())
+        if (position > this.getNumberOfWagons() || position == 0 || position == -1)
             throw new IndexOutOfBoundsException(String.format("This train doesn't have %d wagons.", position));
 
         int seen = 0;
@@ -100,7 +92,7 @@ public class Train implements Iterable<Wagon>{
             if (seen == position)
                 break;
 
-            subject = subject.getPreviousWagon();
+            subject = subject.getNextWagon();
         }
 
         return subject;
@@ -111,15 +103,9 @@ public class Train implements Iterable<Wagon>{
             return 0;
 
         int seats = 0;
-//        PassengerWagon passengerWagon = (PassengerWagon) this.firstWagon;
-//        while(passengerWagon != null) {
-//            seats += passengerWagon.getNumberOfSeats();
-//            passengerWagon = (PassengerWagon) passengerWagon.getPreviousWagon();
-//        }
-
-        for (Iterator<Wagon> it = iterator(); it.hasNext(); ) {
-            Wagon wagon = it.next();
-                seats += ((PassengerWagon) wagon).getNumberOfSeats();
+        //For each implementation with the TrainWagon iterator
+        for (Wagon wagon : this) {
+            seats += ((PassengerWagon) wagon).getNumberOfSeats();
         }
 
         return seats;
@@ -130,8 +116,9 @@ public class Train implements Iterable<Wagon>{
             return 0;
 
         int weight = 0;
+        //For each implementation with the TrainWagon iterator
         for (Wagon wagon : this) {
-                weight += ((FreightWagon) wagon).getMaxWeight();
+            weight += ((FreightWagon) wagon).getMaxWeight();
         }
 
         return weight;

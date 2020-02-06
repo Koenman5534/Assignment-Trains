@@ -2,7 +2,7 @@ package model;
 
 import com.sun.jdi.IncompatibleThreadStateException;
 
-public class Wagon {
+public abstract class Wagon {
     private int wagonId;
     private Wagon previousWagon;
     private Wagon nextWagon;
@@ -12,23 +12,20 @@ public class Wagon {
     }
 
     public Wagon getLastWagonAttached() {
-
-          //  3 -> 2 -> 1
-//        Wagon lastWagon = this;
-//        while (lastWagon.getPreviousWagon() != null){
-//            lastWagon = lastWagon.getPreviousWagon();
-//        }
-
-        if (this.nextWagon != null){
-            return  this.nextWagon;
+        Wagon wagon = this;
+        while (wagon.getNextWagon() != null){
+            wagon = wagon.getNextWagon();
         }
 
-
-        return this.previousWagon;
+        return wagon;
     }
 
     public void setNextWagon(Wagon nextWagon) {
         this.nextWagon = nextWagon;
+
+        if (nextWagon != null) {
+            nextWagon.setPreviousWagon(this);
+        }
     }
 
     public Wagon getPreviousWagon() {
@@ -48,15 +45,16 @@ public class Wagon {
     }
 
     public int getNumberOfWagonsAttached() {
-        if (previousWagon == null) {
+        if (nextWagon == null) {
             return 0;
         }
+
         int number = 0;
-        Wagon subject = previousWagon;
-        while (subject != null)
+        Wagon wagon = nextWagon;
+        while (wagon != null)
         {
+            wagon = wagon.nextWagon;
             number++;
-            subject = subject.previousWagon;
         }
 
         return number;
