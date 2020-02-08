@@ -24,19 +24,19 @@ public class Train implements Iterable<Wagon>{
     }
 
     public void resetNumberOfWagons() {
-       /*  To reset the number of wagons attached to a train
-       * a check on the firstWagon and a while loop is used, to traverse attached wagons
-       * With each found wagon, the numberOfWagons increases */
+        /*  To reset the number of wagons attached to a train
+         * a check on the firstWagon and a while loop is used, to traverse attached wagons
+         * With each found wagon, the numberOfWagons increases */
 
-       numberOfWagons = 0;
-       //If there is no first wagon, the numberOfWagons will be kept at 0;
-       if (firstWagon != null) {
-           Wagon wagon = firstWagon;
-           while (wagon != null) {
-               numberOfWagons++;
-               wagon = wagon.getNextWagon();
-           }
-       }
+        numberOfWagons = 0;
+        //If there is no first wagon, the numberOfWagons will be kept at 0;
+        if (firstWagon != null) {
+            Wagon wagon = firstWagon;
+            while (wagon != null) {
+                numberOfWagons++;
+                wagon = wagon.getNextWagon();
+            }
+        }
     }
 
     public int getNumberOfWagons() {
@@ -44,7 +44,7 @@ public class Train implements Iterable<Wagon>{
     }
 
     /* three helper methods that are usefull in other methods */
-    public boolean hasNoWagons() {
+    boolean hasNoWagons() {
         return (firstWagon == null);
     }
 
@@ -82,6 +82,7 @@ public class Train implements Iterable<Wagon>{
         /* find the wagon on a given position on the train
          position of wagons start at 1 (firstWagon of train)
          use exceptions to handle a position that does not exist */
+
         if (position > this.getNumberOfWagons() || position == 0 || position == -1)
             throw new IndexOutOfBoundsException(String.format("This train doesn't have %d wagons.", position));
 
@@ -116,6 +117,7 @@ public class Train implements Iterable<Wagon>{
             return 0;
 
         int weight = 0;
+
         //For each implementation with the TrainWagon iterator
         for (Wagon wagon : this) {
             weight += ((FreightWagon) wagon).getMaxWeight();

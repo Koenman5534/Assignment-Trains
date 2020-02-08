@@ -32,7 +32,7 @@ public abstract class Wagon {
         return previousWagon;
     }
 
-    public void setPreviousWagon(Wagon previousWagon) {
+    void setPreviousWagon(Wagon previousWagon) {
         this.previousWagon = previousWagon;
     }
 
@@ -45,10 +45,13 @@ public abstract class Wagon {
     }
 
     public int getNumberOfWagonsAttached() {
+        //If there is no extra wagon attached, return zero
         if (nextWagon == null) {
             return 0;
         }
 
+        //If there seem to be more, loop un till aren't any wagons attached.
+        //Increment the number each time another wagon is found
         int number = 0;
         Wagon wagon = nextWagon;
         while (wagon != null)
@@ -60,11 +63,11 @@ public abstract class Wagon {
         return number;
     }
 
-    public boolean hasNextWagon() {
+    boolean hasNextWagon() {
         return !(nextWagon == null);
     }
 
-    public boolean hasPreviousWagon() {
+    boolean hasPreviousWagon() {
         return !(previousWagon == null);
     }
 
